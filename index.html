@@ -6,72 +6,137 @@
     <title>TJK Composite - Nesting & Cutting Plan</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #121212; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
-        .header-bar { background-color: #1a1a1a; padding: 15px 25px; border-bottom: 1px solid #333; }
+        /* SISTEM TEMA / VARIABEL CSS */
+        :root {
+            --bg-main: #121212;
+            --bg-panel: #1e1e1e;
+            --bg-input: #2a2a2a;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --table-head: #252525;
+            --table-hover: #2b2b2b;
+            --box-border: #444444;
+            --text-inverse: #ffffff;
+        }
+
+        body.light-mode {
+            --bg-main: #f0f2f5;
+            --bg-panel: #ffffff;
+            --bg-input: #ffffff;
+            --text-main: #1c1e21;
+            --text-muted: #606770;
+            --border-color: #ccd0d5;
+            --table-head: #e4e6eb;
+            --table-hover: #f5f6f8;
+            --box-border: #ccd0d5;
+            --text-inverse: #000000;
+        }
+
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; }
+        
+        .header-bar { background-color: var(--bg-panel); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; transition: background-color 0.3s; }
         h1 { font-size: 24px; margin: 0 0 5px 0; color: #3498db; }
-        .subtitle { font-size: 12px; color: #888; margin: 0; }
+        .subtitle { font-size: 12px; color: var(--text-muted); margin: 0; }
         
         .main-layout { display: flex; flex: 1; overflow: hidden; }
         
-        /* Panel Kiri */
-        .sidebar { width: 340px; background-color: #1e1e1e; border-right: 1px solid #333; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
-        label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 5px; font-size: 12px; color: #cfcfcf;}
-        input, select { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; background-color: #2a2a2a; color: #fff; font-size: 12px; }
+        /* Sidebar dengan Fitur Collapsible */
+        .sidebar { width: 340px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; box-sizing: border-box; transition: margin-left 0.3s ease, opacity 0.2s ease; }
+        .sidebar.collapsed { margin-left: -340px; opacity: 0; pointer-events: none; }
+        
+        /* Tombol Hamburger Sidebar */
+        .btn-toggle-sidebar { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: var(--table-hover); border-color: #3498db; color: #3498db; }
+
+        /* Switch iOS Theme */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; margin-left: 8px;}
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        input:checked + .slider { background-color: #34c759; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 5px; font-size: 12px; color: var(--text-main);}
+        input, select { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid var(--box-border); border-radius: 4px; box-sizing: border-box; background-color: var(--bg-input); color: var(--text-main); font-size: 12px; transition: background-color 0.3s, color 0.3s; }
         .btn-action { width: 100%; background-color: #2980b9; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 13px; }
         .btn-action:hover { background-color: #3498db; }
         .btn-run { background-color: #27ae60; font-size: 14px; padding: 12px; margin-top: 20px; }
         .btn-run:hover { background-color: #2ecc71; }
         
-        .custom-box { background: #252525; padding: 10px; border-radius: 4px; border: 1px dashed #555; margin-top: 8px; display: none; }
-        .template-group { background: #252525; padding: 10px; border-radius: 4px; border: 1px solid #444; margin-top: 15px; margin-bottom: 5px;}
+        .custom-box { background: var(--bg-main); padding: 10px; border-radius: 4px; border: 1px dashed var(--border-color); margin-top: 8px; display: none; }
+        .template-group { background: var(--bg-main); padding: 10px; border-radius: 4px; border: 1px solid var(--box-border); margin-top: 15px; margin-bottom: 5px;}
         
         /* Panel Kanan (Workspace) */
-        .workspace { flex: 1; padding: 20px; background-color: #121212; overflow-y: auto; position: relative; }
-        .tab-buttons { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .tab-btn { background: none; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 5px 15px; font-weight: bold; }
+        .workspace { flex: 1; padding: 20px; background-color: var(--bg-main); overflow-y: auto; position: relative; transition: background-color 0.3s; }
+        .tab-buttons { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 5px 15px; font-weight: bold; }
         .tab-btn.active { color: #3498db; border-bottom: 2px solid #3498db; }
 
         /* Tabel Part */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #1e1e1e; border-radius: 6px; overflow: hidden; }
-        th, td { padding: 10px 10px; border-bottom: 1px solid #2a2a2a; font-size: 11px; }
-        th { background-color: #252525; color: #aaa; font-weight: bold; text-align: left; }
-        tr:hover { background-color: #2b2b2b; }
-        .color-preview { border: 1px solid #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: var(--bg-panel); border-radius: 6px; overflow: hidden; }
+        th, td { padding: 10px 10px; border-bottom: 1px solid var(--border-color); font-size: 11px; }
+        th { background-color: var(--table-head); color: var(--text-main); font-weight: bold; text-align: left; }
+        tr:hover { background-color: var(--table-hover); }
+        .color-preview { border: 1px solid var(--box-border); }
         .btn-delete { color: #e74c3c; background: none; border: none; font-size: 16px; cursor: pointer; font-weight: bold; }
         .btn-delete:hover { color: #c0392b; }
-        .qty-input-table { width: 45px; text-align: center; background-color: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 3px; padding: 4px; font-size: 11px;}
+        .qty-input-table { width: 45px; text-align: center; background-color: var(--bg-input); color: var(--text-main); border: 1px solid var(--box-border); border-radius: 3px; padding: 4px; font-size: 11px;}
         .qty-input-table:focus { outline: none; border-color: #3498db; }
 
         /* Canvas Nesting */
         #results-view { display: none; }
-        .sheet-container { margin-bottom: 30px; border: 1px solid #444; padding: 15px; border-radius: 6px; background: #181818; page-break-inside: avoid;}
-        .sheet-stats { background: #222; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; color: #f1c40f; display: flex; justify-content: space-between; }
-        .raw-material-board { background-color: #2b2b2b; border: 2px solid #555; position: relative; margin-top: 10px; overflow: hidden; }
+        .sheet-container { margin-bottom: 30px; border: 1px solid var(--box-border); padding: 15px; border-radius: 6px; background: var(--bg-panel); page-break-inside: avoid; transition: background-color 0.3s;}
+        .sheet-stats { background: var(--bg-input); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; color: #f1c40f; display: flex; justify-content: space-between; }
+        .raw-material-board { background-color: var(--table-hover); border: 2px solid var(--text-muted); position: relative; margin-top: 10px; overflow: hidden; }
         .cut-area { position: absolute; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.4); }
         .actual-part { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #fff; width: 100%; height: 100%; text-align: center; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); overflow: hidden;}
-        .recommendation-box { margin-top: 15px; padding: 12px; background-color: #16291e; border-left: 5px solid #27ae60; border-radius: 4px; border: 1px solid #1e462c; }
-        .area-forecasting { background-color: #1a1a1a; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 3px solid; }
+        .recommendation-box { margin-top: 15px; padding: 12px; background-color: rgba(39, 174, 96, 0.1); border-left: 5px solid #27ae60; border-radius: 4px; border: 1px solid rgba(39, 174, 96, 0.2); }
+        .area-forecasting { background-color: var(--bg-input); padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 3px solid; }
         
         .flex-row { display: flex; gap: 10px; }
         .flex-row > div { flex: 1; }
 
         /* Feedback Popup UI */
-        .feedback-popup { display: none; position: fixed; bottom: 80px; left: 20px; background: #1e1e1e; border: 1px solid #444; padding: 15px; border-radius: 6px; width: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 100; }
-        .feedback-popup select, .feedback-popup textarea { width: 100%; margin-bottom: 10px; background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px; font-size: 12px; border-radius: 4px; box-sizing: border-box;}
+        .feedback-popup { display: none; position: fixed; bottom: 80px; left: 20px; background: var(--bg-panel); border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; width: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 100; transition: background-color 0.3s; }
+        .feedback-popup select, .feedback-popup textarea { width: 100%; margin-bottom: 10px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--box-border); padding: 8px; font-size: 12px; border-radius: 4px; box-sizing: border-box;}
         .feedback-popup textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-        .close-btn { float: right; cursor: pointer; color: #888; font-weight: bold; border:none; background:none; font-size: 14px; margin-top: -5px; }
+        .close-btn { float: right; cursor: pointer; color: var(--text-muted); font-weight: bold; border:none; background:none; font-size: 14px; margin-top: -5px; }
         .close-btn:hover { color: #e74c3c; }
     </style>
 </head>
 <body>
 
     <div class="header-bar">
-        <h1>TJK Composite - Nesting & Cutting Plan</h1>
-        <p class="subtitle">Precision Nesting Engine & Dynamic Forecasting for Floor Fabrication</p>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <!-- TOMBOL TOGGLE SIDEBAR -->
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div>
+                <h1>TJK Composite - Nesting & Cutting Plan</h1>
+                <p class="subtitle">Precision Nesting Engine & Dynamic Forecasting for Floor Fabrication</p>
+            </div>
+        </div>
+        
+        <!-- SWITCH TEMA iOS -->
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+                <span class="slider"></span>
+            </label>
+            <span style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-left: 8px;">Light Mode</span>
+        </div>
     </div>
 
     <div class="main-layout">
-        <div class="sidebar">
+        <!-- SIDEBAR DIBERI ID AGAR BISA DIGESER JS -->
+        <div class="sidebar" id="sidebar-panel">
             <div id="top-sidebar-content">
                 <p style="font-size:11px; color:#f39c12; margin: 0 0 15px 0;" id="status-koneksi">Synchronizing with Database...</p>
                 
@@ -109,7 +174,7 @@
                     </div>
                 </div>
 
-                <label style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">Add Part to List (FIN):</label>
+                <label style="margin-top:20px; border-top: 1px solid var(--border-color); padding-top:15px;">Add Part to List (FIN):</label>
                 <input type="text" id="part-input" list="parts-list" placeholder="Search FIN number..." onclick="this.value=''">
                 <datalist id="parts-list"></datalist>
                 
@@ -125,7 +190,7 @@
                 <button class="btn-action" style="background-color: #9b59b6; margin-top: 15px; display:none;" onclick="downloadPDFReport()" id="btn-download">Download PDF Report</button>
             </div>
 
-            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #333; font-size: 11px; color: #7f8c8d; line-height: 1.5;">
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.5;">
                 <a href="#" onclick="toggleFeedback(event)" style="color: #3498db; text-decoration: none; font-weight: bold; font-size: 12px;">Need Help?</a>
                 <div style="margin-top: 8px;">
                     Contact: Agung / 584463 / 8930<br>
@@ -169,17 +234,26 @@
                     </thead>
                     <tbody id="table-body"></tbody>
                 </table>
-                <p id="empty-msg" style="text-align: center; color: #555; margin-top: 20px; font-size: 13px;">Part list is empty. Add parts or load templates from the left panel.</p>
+                <p id="empty-msg" style="text-align: center; color: var(--text-muted); margin-top: 20px; font-size: 13px;">Part list is empty. Add parts or load templates from the left panel.</p>
             </div>
 
             <div id="results-view">
-                <p id="board-info" style="color: #a3e4d7; font-size: 13px; margin-bottom: 20px;">Please configure inputs and run optimization to view layout.</p>
+                <p id="board-info" style="color: #3498db; font-size: 13px; margin-bottom: 20px; font-weight: bold;">Please configure inputs and run optimization to view layout.</p>
                 <div id="sheets-container"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // LOGIKA TOGGLE SIDEBAR & THEME
+        function toggleSidebar() {
+            document.getElementById('sidebar-panel').classList.toggle('collapsed');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
         const sheetId = '1BqKlfuhjFLFMSwNPrH_DFniZmAjCXAip0nLU2RxICvo';
         const urlCargo = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Data_Cargo`;
         const urlMaterial = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Data_Material`;
@@ -460,7 +534,12 @@
                 let elapsed = (Date.now() - startTime) / 1000;
                 if (elapsed >= timeLimitSec) {
                     clearInterval(searchInterval); clearInterval(timerInterval);
-                    renderSheets(bestSheets, mat, margin, borderSpace); return;
+                    renderSheets(bestSheets, mat, margin, borderSpace); 
+                    // Otomatis menutup sidebar saat nesting selesai (untuk layout HP)
+                    if(window.innerWidth < 768) {
+                        document.getElementById('sidebar-panel').classList.add('collapsed');
+                    }
+                    return;
                 }
                 
                 let shuffled = [...flatPartsList];
@@ -568,7 +647,7 @@
                                     <strong style="color: ${areaColor};">REUSABLE REMAINING AREA (${rectW_mm} x ${rectH_mm} mm)</strong> bisa digunakan untuk:`;
                         
                         if (recommendations.length > 0) {
-                            let recList = recommendations.map(r => `<span style="display: inline-block; background-color: rgba(255,255,255,0.08); padding: 5px 10px; margin: 4px 6px 4px 0; border: 1px solid #444; border-radius: 4px; font-size: 11px;">Up to <strong style="color:#f1c40f;">${r.count} unit(s)</strong> of <strong>${r.fin}</strong></span>`);
+                            let recList = recommendations.map(r => `<span style="display: inline-block; background-color: rgba(255,255,255,0.08); padding: 5px 10px; margin: 4px 6px 4px 0; border: 1px solid var(--box-border); border-radius: 4px; font-size: 11px;">Up to <strong style="color:#f1c40f;">${r.count} unit(s)</strong> of <strong style="color:var(--text-main);">${r.fin}</strong></span>`);
                             recHtml += `<div style="display: flex; flex-wrap: wrap; margin-top: 8px;">${recList.join("")}</div></div>`;
                         } else {
                             recHtml += `<p style="color:#e74c3c; margin: 5px 0 0 0;">Area ini tidak cukup memuat part manapun.</p></div>`;
@@ -608,7 +687,6 @@
 
             let htmlStr = `
                 <div id="pdf-export-wrapper">
-                    <!-- INJEKSI CSS KHUSUS -->
                     <style>
                         #pdf-export-wrapper {
                             background-color: #ffffff !important;
@@ -628,7 +706,6 @@
                         .pdf-page-break { page-break-after: always !important; }
                     </style>
 
-                    <!-- HEADER HALAMAN 1: LOGO DI TENGAH & DATE STAMP DIBAWAH GARIS -->
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 8px; position: relative;">
                         <div style="text-align: center; width: 100%;">
                             <img src="${gmfLogoUrl}" style="max-height: 40px; object-fit: contain;" crossorigin="anonymous">
@@ -711,7 +788,6 @@
                     <div class="pdf-page-break"></div>
             `;
 
-            // --- HALAMAN BERIKUTNYA: SKETSA AREA MATERIAL (SKALA DIKECILKAN KE 750px AGAR LEGA) ---
             sheets.forEach((sheet, idx) => {
                 let usedArea = 0; sheet.parts.forEach(p => { usedArea += ((p.w/scale) * (p.h/scale)); });
                 let util = ((usedArea / (mat.length * mat.width)) * 100).toFixed(2);
@@ -725,7 +801,6 @@
                 });
                 let uniqueKeys = Array.from(uniqueMap.keys());
 
-                // Deteksi Offcut / Sisa Area Kosong untuk Sheet Ini
                 let bScale = (parseFloat(document.getElementById("border-input").value) || 5) * scale;
                 let absoluteRightEdge = bScale;
                 sheet.parts.forEach(p => {
@@ -769,12 +844,9 @@
 
                 let visualScale = 750 / mat.length;
                 
-                // Render Kotak Offcut jika ada
                 if (hasOffcut) {
-                    let oX = (offcutX / scale) * visualScale;
-                    let oY = (offcutY / scale) * visualScale;
-                    let oW = (offcutW_px / scale) * visualScale;
-                    let oH = (offcutH_px / scale) * visualScale;
+                    let oX = (offcutX / scale) * visualScale; let oY = (offcutY / scale) * visualScale;
+                    let oW = (offcutW_px / scale) * visualScale; let oH = (offcutH_px / scale) * visualScale;
                     htmlStr += `
                         <div style="position: absolute; left: ${oX}px; top: ${oY}px; width: ${oW}px; height: ${oH}px; border: 2px dashed #2ecc71 !important; background-color: rgba(46, 204, 113, 0.08) !important; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #27ae60; text-align: center; box-sizing: border-box;">
                             REUSABLE AREA<br/>${offcutW_mm} x ${offcutH_mm} mm
@@ -785,7 +857,6 @@
                     let actX = (p.x / scale) * visualScale; let actY = (p.y / scale) * visualScale;
                     let actW = (p.w / scale) * visualScale; let actH = (p.h / scale) * visualScale;
                     let numId = uniqueKeys.indexOf(p.fin) + 1;
-                    
                     htmlStr += `
                         <div style="position: absolute; left: ${actX}px; top: ${actY}px; width: ${actW}px; height: ${actH}px; border: 1px solid #7B8DFF !important; background-color: transparent !important; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; box-sizing: border-box;">
                             ${numId}
@@ -809,26 +880,21 @@
                 uniqueKeys.forEach((fin, uIdx) => {
                     let dat = uniqueMap.get(fin);
                     let area = ((dat.w * dat.h) / 1000000).toFixed(3);
-                    
                     let maxDim = Math.max(dat.w, dat.h);
                     let scaleFactor = 16 / maxDim;
                     let prevW = dat.w * scaleFactor;
                     let prevH = dat.h * scaleFactor;
-
                     htmlStr += `
                         <tr>
                             <td>${uIdx+1}</td>
                             <td>${fin}</td>
-                            <td>
-                                <div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important;"></div>
-                            </td>
+                            <td><div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important;"></div></td>
                             <td>${dat.w.toFixed(2)}</td><td>${dat.h.toFixed(2)}</td>
                             <td>1</td><td>${area}</td>
                             <td>${dat.count}</td>
                         </tr>`;
                 });
 
-                // Tambahan 1 Row Khusus Informasi Usable Remaining Area (Offcut) setelah Part List terakhir
                 if (hasOffcut) {
                     htmlStr += `
                         <tr style="background-color: #f4fcf7 !important;">
@@ -870,7 +936,6 @@
                     pdf.line(0.15, pageHeight - 0.38, pageWidth - 0.15, pageHeight - 0.38);
                     pdf.setFontSize(9);
                     pdf.setTextColor(0, 0, 0);
-                    // Posisi X digeser ke kiri (pageWidth - 0.6) agar nomor halaman digit ganda (seperti 13/14) aman di dalam border
                     pdf.text(i + ' / ' + totalPages, pageWidth - 0.6, pageHeight - 0.22);
                 }
             }).save();

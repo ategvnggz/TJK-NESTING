@@ -328,7 +328,7 @@
             const type = document.getElementById('feedback-type').value;
             const msg = document.getElementById('feedback-msg').value;
             if(!msg.trim()) { alert("Please enter a message before sending."); return; }
-            const recipient = "agung.saputra@aeroasia.co.id"; 
+            const recipient = "agung.saputra@gmf-aeroasia.co.id"; 
             const subject = encodeURIComponent(`[${type}] TJK Composite Web App`);
             const body = encodeURIComponent(msg);
             window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;

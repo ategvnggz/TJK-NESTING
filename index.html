@@ -6,7 +6,6 @@
     <title>TJK Composite - Nesting & Cutting Plan</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* SISTEM TEMA / VARIABEL CSS */
         :root {
             --bg-main: #121212;
             --bg-panel: #1e1e1e;
@@ -41,15 +40,12 @@
         
         .main-layout { display: flex; flex: 1; overflow: hidden; }
         
-        /* Sidebar dengan Fitur Collapsible */
         .sidebar { width: 340px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; box-sizing: border-box; transition: margin-left 0.3s ease, opacity 0.2s ease; }
         .sidebar.collapsed { margin-left: -340px; opacity: 0; pointer-events: none; }
         
-        /* Tombol Hamburger Sidebar */
         .btn-toggle-sidebar { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .btn-toggle-sidebar:hover { background: var(--table-hover); border-color: #3498db; color: #3498db; }
 
-        /* Switch iOS Theme */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; margin-left: 8px;}
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
@@ -67,13 +63,11 @@
         .custom-box { background: var(--bg-main); padding: 10px; border-radius: 4px; border: 1px dashed var(--border-color); margin-top: 8px; display: none; }
         .template-group { background: var(--bg-main); padding: 10px; border-radius: 4px; border: 1px solid var(--box-border); margin-top: 15px; margin-bottom: 5px;}
         
-        /* Panel Kanan (Workspace) */
         .workspace { flex: 1; padding: 20px; background-color: var(--bg-main); overflow-y: auto; position: relative; transition: background-color 0.3s; }
         .tab-buttons { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 5px 15px; font-weight: bold; }
         .tab-btn.active { color: #3498db; border-bottom: 2px solid #3498db; }
 
-        /* Tabel Part */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: var(--bg-panel); border-radius: 6px; overflow: hidden; }
         th, td { padding: 10px 10px; border-bottom: 1px solid var(--border-color); font-size: 11px; }
         th { background-color: var(--table-head); color: var(--text-main); font-weight: bold; text-align: left; }
@@ -84,7 +78,6 @@
         .qty-input-table { width: 45px; text-align: center; background-color: var(--bg-input); color: var(--text-main); border: 1px solid var(--box-border); border-radius: 3px; padding: 4px; font-size: 11px;}
         .qty-input-table:focus { outline: none; border-color: #3498db; }
 
-        /* Canvas Nesting */
         #results-view { display: none; }
         .sheet-container { margin-bottom: 30px; border: 1px solid var(--box-border); padding: 15px; border-radius: 6px; background: var(--bg-panel); page-break-inside: avoid; transition: background-color 0.3s;}
         .sheet-stats { background: var(--bg-input); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; color: #f1c40f; display: flex; justify-content: space-between; }
@@ -97,7 +90,6 @@
         .flex-row { display: flex; gap: 10px; }
         .flex-row > div { flex: 1; }
 
-        /* Feedback Popup UI */
         .feedback-popup { display: none; position: fixed; bottom: 80px; left: 20px; background: var(--bg-panel); border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; width: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 100; transition: background-color 0.3s; }
         .feedback-popup select, .feedback-popup textarea { width: 100%; margin-bottom: 10px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--box-border); padding: 8px; font-size: 12px; border-radius: 4px; box-sizing: border-box;}
         .feedback-popup textarea { resize: vertical; min-height: 80px; font-family: inherit; }
@@ -109,7 +101,6 @@
 
     <div class="header-bar">
         <div style="display: flex; align-items: center; gap: 15px;">
-            <!-- TOMBOL TOGGLE SIDEBAR -->
             <button class="btn-toggle-sidebar" onclick="toggleSidebar()" title="Toggle Sidebar">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -123,7 +114,6 @@
             </div>
         </div>
         
-        <!-- SWITCH TEMA iOS -->
         <div style="display: flex; align-items: center;">
             <span style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Dark Mode</span>
             <label class="switch">
@@ -135,7 +125,6 @@
     </div>
 
     <div class="main-layout">
-        <!-- SIDEBAR DIBERI ID AGAR BISA DIGESER JS -->
         <div class="sidebar" id="sidebar-panel">
             <div id="top-sidebar-content">
                 <p style="font-size:11px; color:#f39c12; margin: 0 0 15px 0;" id="status-koneksi">Synchronizing with Database...</p>
@@ -245,7 +234,6 @@
     </div>
 
     <script>
-        // LOGIKA TOGGLE SIDEBAR & THEME
         function toggleSidebar() {
             document.getElementById('sidebar-panel').classList.toggle('collapsed');
         }
@@ -340,7 +328,7 @@
             const type = document.getElementById('feedback-type').value;
             const msg = document.getElementById('feedback-msg').value;
             if(!msg.trim()) { alert("Please enter a message before sending."); return; }
-            const recipient = "agung.saputra@example.com"; 
+            const recipient = "agung.saputra@aeroasia.co.id"; 
             const subject = encodeURIComponent(`[${type}] TJK Composite Web App`);
             const body = encodeURIComponent(msg);
             window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
@@ -535,7 +523,6 @@
                 if (elapsed >= timeLimitSec) {
                     clearInterval(searchInterval); clearInterval(timerInterval);
                     renderSheets(bestSheets, mat, margin, borderSpace); 
-                    // Otomatis menutup sidebar saat nesting selesai (untuk layout HP)
                     if(window.innerWidth < 768) {
                         document.getElementById('sidebar-panel').classList.add('collapsed');
                     }
@@ -702,7 +689,9 @@
                         #pdf-export-wrapper th:nth-child(2) { text-align: left; } 
                         #pdf-export-wrapper td { background-color: #ffffff !important; border-bottom: 1px dashed #cccccc !important; padding: 3px; text-align: center; }
                         #pdf-export-wrapper td:nth-child(2) { text-align: left; } 
-                        #pdf-export-wrapper tr { page-break-inside: avoid !important; }
+                        
+                        /* Logika Page Break untuk Mempertahankan Keutuhan Baris Tabel */
+                        #pdf-export-wrapper tr { page-break-inside: avoid !important; page-break-after: auto; }
                         .pdf-page-break { page-break-after: always !important; }
                     </style>
 
@@ -710,7 +699,7 @@
                         <div style="text-align: center; width: 100%;">
                             <img src="${gmfLogoUrl}" style="max-height: 40px; object-fit: contain;" crossorigin="anonymous">
                         </div>
-                        <div style="font-size: 11px; width: 100%; text-align: right; margin-top: 4px;">Date: ${dateStr}</div>
+                        <div style="font-size: 11px; width: 100%; text-align: right; margin-top: 4px; padding-right: 15px; box-sizing: border-box;">Date: ${dateStr}</div>
                     </div>
                     
                     <h3 style="text-align: center; margin: 5px 0 8px 0; font-size: 14px;">Part-List</h3>
@@ -733,16 +722,17 @@
                 totalPartsCount += p.qty;
                 
                 let maxDim = Math.max(data.l, data.w);
-                let scaleFactor = 16 / maxDim; 
+                let scaleFactor = 14 / maxDim; 
                 let prevW = data.l * scaleFactor;
                 let prevH = data.w * scaleFactor;
 
                 htmlStr += `
+                    <!-- Row tidak akan terpotong berkat style tr global page-break-inside: avoid -->
                     <tr>
                         <td>${idx+1}</td>
                         <td>${p.fin}</td>
                         <td>
-                            <div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important;"></div>
+                            <div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important; box-sizing: border-box;"></div>
                         </td>
                         <td>${p.qty}</td><td>${p.qty}</td><td>0</td>
                         <td>${data.l.toFixed(2)}</td><td>${data.w.toFixed(2)}</td>
@@ -826,9 +816,9 @@
                 }
 
                 htmlStr += `
-                <div style="padding-top: 2px;">
+                <div style="padding-top: 2px; padding-bottom: 20px;">
                     <h3 style="text-align: center; margin: 0 0 4px 0; font-size: 13px;">sheet${idx+1}</h3>
-                    <table style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; margin-bottom: 10px;">
+                    <table style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; margin-bottom: 10px; page-break-inside: avoid;">
                         <tr>
                             <td style="width: 16%; text-align:center; border:none !important;"><strong>Name</strong><br>sheet${idx+1}</td>
                             <td style="width: 16%; text-align:center; border:none !important;"><strong>Duplicate</strong><br>1</td>
@@ -838,11 +828,29 @@
                             <td style="width: 16%; text-align:center; border:none !important;"><strong>Util [%]</strong><br>${util}</td>
                         </tr>
                     </table>
-                    
-                    <div style="position: relative; width: 750px; height: ${(750 * mat.width) / mat.length}px; border: 1px solid #333 !important; margin: 0 auto 10px auto; background-color: #ffffff !important;">
                 `;
 
-                let visualScale = 750 / mat.length;
+                // PERBAIKAN LOGIKA SKALA FISIK UNTUK KERTAS A4 LANDSCAPE (Maksimum Lebar Cetak A4 ~265mm)
+                let renderWidth = 750; // Pixel logic for PDF wrapper
+                let renderHeight = (renderWidth * mat.width) / mat.length;
+                let maxSafeHeight = 450; 
+                
+                if (renderHeight > maxSafeHeight) {
+                    renderHeight = maxSafeHeight;
+                    renderWidth = (renderHeight * mat.length) / mat.width;
+                }
+                
+                // Menghitung Skala Fisik Cetak A4
+                const maxA4PrintWidth_mm = 265; 
+                let physicalScaleRatio = Math.round(mat.length / maxA4PrintWidth_mm);
+
+                let visualScale = renderWidth / mat.length;
+
+                htmlStr += `
+                    <div style="position: relative; width: ${renderWidth}px; height: ${renderHeight}px; border: 1px solid #333 !important; margin: 0 auto 10px auto; background-color: #ffffff !important; page-break-inside: avoid;">
+                        <!-- Indikator Skala Fisik (A4) -->
+                        <div style="position: absolute; bottom: -18px; right: 0; font-size: 9px; color: #555; font-style: italic;">Est. Print Scale (A4) 1 : ${physicalScaleRatio}</div>
+                `;
                 
                 if (hasOffcut) {
                     let oX = (offcutX / scale) * visualScale; let oY = (offcutY / scale) * visualScale;
@@ -865,7 +873,7 @@
 
                 htmlStr += `
                     </div>
-                    <table>
+                    <table style="margin-top: 25px;">
                         <thead>
                             <tr>
                                 <th style="width: 40px;">No.</th>
@@ -881,14 +889,15 @@
                     let dat = uniqueMap.get(fin);
                     let area = ((dat.w * dat.h) / 1000000).toFixed(3);
                     let maxDim = Math.max(dat.w, dat.h);
-                    let scaleFactor = 16 / maxDim;
+                    let scaleFactor = 14 / maxDim; // Preview diperkecil
                     let prevW = dat.w * scaleFactor;
                     let prevH = dat.h * scaleFactor;
                     htmlStr += `
+                        <!-- Pengamanan Row Tambahan di Tabel Bawah -->
                         <tr>
                             <td>${uIdx+1}</td>
                             <td>${fin}</td>
-                            <td><div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important;"></div></td>
+                            <td><div style="width:${prevW}px; height:${prevH}px; border:1px solid #7B8DFF; margin:0 auto; background-color: transparent !important; box-sizing: border-box;"></div></td>
                             <td>${dat.w.toFixed(2)}</td><td>${dat.h.toFixed(2)}</td>
                             <td>1</td><td>${area}</td>
                             <td>${dat.count}</td>
@@ -897,7 +906,7 @@
 
                 if (hasOffcut) {
                     htmlStr += `
-                        <tr style="background-color: #f4fcf7 !important;">
+                        <tr style="background-color: #f4fcf7 !important; page-break-inside: avoid !important;">
                             <td>-</td>
                             <td style="color: #27ae60; font-weight: bold;">Usable Remaining Area (Offcut)</td>
                             <td>-</td>
